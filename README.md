@@ -1,6 +1,6 @@
 # apBookStore
 
-Det sakans en del felantering...
+Det finns nu en del felantering i speciellt WpfBookStore men även i konsol app...
 
 Ladda ner som Zip, packa upp och öppna apBookStore.sln i VS, bygg lösningen.  Sedan kan man köra de olika projekten:
 
