@@ -77,7 +77,7 @@ namespace WpfBookStore
         }
 
 
-        private async void btAddToCart_Click(object sender, RoutedEventArgs e)
+        private void btAddToCart_Click(object sender, RoutedEventArgs e)
         {
             if (booksLB.SelectedItem != null)
             {
