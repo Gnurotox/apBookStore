@@ -14,7 +14,7 @@ namespace apBookStore
         {
 
             var bookStoreService = new BookstoreService();
-            var Books = bookStoreService.GetBooksAsync().Result.ToList();
+            var Books = bookStoreService.GetBooksAsync().Result.Cast<Book>().ToList();
             var cart = new BookCart();
 
             
@@ -42,7 +42,10 @@ namespace apBookStore
                             Environment.Exit(0);
                             break;
                         case BookCommand.listcart:
-                            Console.WriteLine(cart);
+                            var sb = new StringBuilder();
+                            var ci = cart.GetCartItems();
+                            ci.ForEach(i => sb.AppendLine(i.ToString()));    
+                            Console.WriteLine(sb.ToString());
                             break;
                         case BookCommand.listbooks:
                             Books.ForEach(b => Console.WriteLine(Books.IndexOf(b) + ": " + b.Title));
@@ -65,6 +68,28 @@ namespace apBookStore
                                 Console.WriteLine("Syntax error");
                             break;
                         case BookCommand.checkout:
+                            var updatedCartInfo = cart.CheckOut().Result;
+                             
+                            var sbC = new StringBuilder();
+                            sbC.AppendLine("Order Details:");
+                            if (!updatedCartInfo.CartItems.Any())
+                                sbC.AppendLine("Cart is empty");
+                            else
+                            {
+
+                                updatedCartInfo.CartItems.ForEach(i => sbC.AppendLine(i.ToString()));
+                                sbC.AppendLine("TotalCost: " + updatedCartInfo.CartItems.Sum(ci1 => ci1.PriceSum));
+                                sbC.AppendLine();
+                            }
+
+                            if (updatedCartInfo.RemovedCartItems.Any())
+                            {
+                                sbC.AppendLine("Removed cart items (not in stock):");
+                                updatedCartInfo.RemovedCartItems.ForEach(ri => sbC.AppendLine(ri.ToString()));
+                            }
+
+                            Console.Write(sbC.ToString());
+
                             break;
                         case BookCommand.details:
                            
