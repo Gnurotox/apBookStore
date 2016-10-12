@@ -43,15 +43,10 @@ namespace WebBookStore
         private async void UpdateBooks()
         {
             var bs = new BookstoreService();
-            IEnumerable<IBook> ret;
-            if (!string.IsNullOrWhiteSpace(searchTextBox.Text))
-            {
-                ret = await bs.GetBooksAsync(searchTextBox.Text);
-            }
-            else
-            {
-                ret = await bs.GetBooksAsync();
-            }
+
+            var searchString = string.IsNullOrWhiteSpace(searchTextBox.Text) ? null : searchTextBox.Text;
+
+            var ret = await bs.GetBooksAsync(searchString);
 
             ListBox1.DataSource = ret.Cast<Book>().ToList();
             ListBox1DS = (List<Book>)ListBox1.DataSource;

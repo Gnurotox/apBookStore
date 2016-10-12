@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Reflection;
+using System.Net.Http;
+using Newtonsoft.Json;
 
 namespace apBookStore
 {
@@ -12,14 +14,36 @@ namespace apBookStore
     {
         static void Main(string[] args)
         {
-
-            var bookStoreService = new BookstoreService();
-            var Books = bookStoreService.GetBooksAsync().Result.Cast<Book>().ToList();
-            var cart = new BookCart();
-
-            
             Console.WriteLine("Enter 'help' to get help...");
+            var bookStoreService = new BookstoreService();
+            List<Book> Books = new List<Book>();
+            try
+            {
+                Books = bookStoreService.GetBooksAsync().Result.Cast<Book>().ToList();
+            }
+            catch (AggregateException ex)
+            {
+                ex.Handle((e) => {
+                    if (e is HttpRequestException)
+                    {
+                        Console.WriteLine(e.Message);
+                        return true;
+                    }
+                    if (e is JsonSerializationException)
+                    {
+                        Console.WriteLine(e.Message);
+                        return true;
+                    }
+                    return false;
+                });
+            }
+            catch (Exception ex)
+            {
+                
+                Console.WriteLine(ex);
+            }
 
+            var cart = new BookCart();
             var type = typeof(BookCommand);
 
             while (true)
@@ -141,9 +165,9 @@ namespace apBookStore
         details,
         [Description("Add to cart eg.: 'add <index>'")]
         add,
-        [Description("List of actual cart (cart is uppdated with latest data)")]
+        [Description("List of actual cart (cart is updated with latest data)")]
         listcart,
-        [Description("Bye books in cart of book is not in stock they vill first be removed")]
+        [Description("Bye books in cart of book is not in stock they will first be removed")]
         checkout,
         [Description("Exit bookstore")]
         exit,

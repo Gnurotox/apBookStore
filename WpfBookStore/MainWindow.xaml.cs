@@ -5,6 +5,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Text;
+using System.Net.Http;
+using Newtonsoft.Json;
+
 namespace WpfBookStore
 {
     /// <summary>
@@ -22,15 +25,22 @@ namespace WpfBookStore
         private async void UpdateBooks()
         {
             var bs = new BookstoreService();
-            IEnumerable<IBook> ret;
-            if (!string.IsNullOrWhiteSpace(searchTextBox.Text))
+
+            var searchString = string.IsNullOrWhiteSpace(searchTextBox.Text) ? null : searchTextBox.Text;
+            IEnumerable<IBook> ret = new List<IBook>();
+            try
             {
-                ret = await bs.GetBooksAsync(searchTextBox.Text);
+
+                ret = await bs.GetBooksAsync(searchString);
             }
-            else
+            catch (HttpRequestException ex)
             {
-                ret = await bs.GetBooksAsync();
-            } 
+                MessageBox.Show(ex.Message, "Error");
+            }
+            catch (JsonSerializationException ex)
+            {
+                MessageBox.Show(ex.Message, "Error");
+            }
 
             booksLB.ItemsSource = ret.Cast<Book>().ToList();
         }
@@ -91,6 +101,8 @@ namespace WpfBookStore
                 }
                 UpdateCart();
             }
+            else
+                MessageBox.Show("No book selected", "Error");
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
